@@ -64,8 +64,7 @@
     </div>
 
     <script>
-        // Replace with your OpenWeatherMap API Key
-        const apiKey = "d4d40ac08e5b93649b3d07759143419f"; 
+        const apiKey = "d4d40ac08e5b93649b3d07759143419f"; // Your API key
 
         // Function to fetch weather by city or zip code
         function fetchWeatherByLocation() {
@@ -95,7 +94,6 @@
             const weatherDescription = data.weather[0].description;
             const humidity = data.main.humidity;
             const windSpeed = data.wind.speed * 2.23694;  // Convert m/s to mph (1 m/s = 2.23694 mph)
-            const uvIndex = data.main.temp;  // Placeholder, update if UV info is available via API
 
             weatherDiv.innerHTML = `
                 <p>Temperature: ${temp}°F</p>
@@ -104,6 +102,23 @@
                 <p>Wind Speed: ${windSpeed.toFixed(1)} mph</p>
                 <p>UV Index: <span id="uv-index">Loading...</span></p>
             `;
+            
+            // Now fetch the UV index for this location (One Call API)
+            fetchUVIndex(data.coord.lat, data.coord.lon);
+        }
+
+        // Function to fetch UV index
+        function fetchUVIndex(lat, lon) {
+            fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&units=imperial&appid=${apiKey}`)
+                .then(response => response.json())
+                .then(data => {
+                    const uvIndex = data.current.uvi;  // Get current UV index
+                    document.getElementById('uv-index').innerText = uvIndex;
+                })
+                .catch(error => {
+                    console.error('Error fetching UV index:', error);
+                    document.getElementById('uv-index').innerText = "N/A";
+                });
         }
 
         // Function to fetch tomorrow's forecast
